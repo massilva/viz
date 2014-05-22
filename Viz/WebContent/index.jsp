@@ -45,6 +45,7 @@
 	</div>
 </form>
  -->
+	<div class="repository"><%= request.getAttribute("LOCAL_REPOSITORY_PATH") %></div>
 	<a href='treemap.do' " class="btn btn-default"> <span
 		class="glyphicon glyphicon-plus-sign"></span> TreeMap
 	</a>

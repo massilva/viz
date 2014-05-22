@@ -1,21 +1,20 @@
+
 package org.viz.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.persistence.config.PersistenceUnitProperties;
-import org.visminer.main.VisMiner;
-import org.visminer.model.Committer;
-import org.visminer.model.Repository;
+import org.visminer.model.Metric;
+import org.visminer.model.MetricValue;
+import org.viz.main.Viz;
 
 /**
  * Servlet implementation class IndexServlet
@@ -23,8 +22,8 @@ import org.visminer.model.Repository;
 @WebServlet("/IndexServlet")
 public class IndexServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
+    
+   /** 
      * @see HttpServlet#HttpServlet()
      */
     public IndexServlet() {
@@ -36,29 +35,37 @@ public class IndexServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Map<String, String> props = new HashMap<String, String>();
-		props.put(PersistenceUnitProperties.JDBC_DRIVER, "com.mysql.jdbc.Driver");
-		props.put(PersistenceUnitProperties.JDBC_URL, "jdbc:mysql://localhost/visminer");
-		props.put(PersistenceUnitProperties.JDBC_USER, "root");
-		props.put(PersistenceUnitProperties.JDBC_PASSWORD, "123"); 
-		//props.put(PersistenceUnitProperties.DDL_GENERATION, "create-tables");
-		
-		Map<Integer, String> api_cfg = new HashMap<Integer, String>();
-		api_cfg.put(VisMiner.LOCAL_REPOSITORY_PATH, "/home/massilva/workspace/Visminer/.git");
-		api_cfg.put(VisMiner.LOCAL_REPOSITORY_NAME, "Visminer");
-		api_cfg.put(VisMiner.LOCAL_REPOSITORY_OWNER, "visminer");
+		HttpSession session = request.getSession();
+		Viz viz = (Viz)session.getAttribute("viz");
 		
 		try {
-			VisMiner visminer = new VisMiner(props, api_cfg);
-			PrintWriter writer = response.getWriter();
-			for(Committer committer : visminer.getCommitters()){
-				writer.println(committer.getEmail());
+			
+			Metric metric = null;
+			System.out.println("Filter: "+viz);
+			
+			for(Metric m : viz.getVisminer().getMetrics()) {
+				if(m.getName().equals("NOC")){
+					metric = m;
+					break;
+				}
 			}
+			
+			if(metric != null){
+				System.out.println(metric.getName()+"-"+metric.getDescription());
+				for (MetricValue metricValue : metric.getMetricValues()) {
+					System.out.println("File: "+metricValue.getFile());
+					System.out.println("Value: "+metricValue.getValue());
+				}
+			}
+				
+			request.setAttribute("LOCAL_REPOSITORY_PATH",viz.getLocalRepositoryPath());
+			request.getRequestDispatcher("/index.jsp").forward(request, response);
 		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
+			PrintWriter writer = response.getWriter();
+			writer.println("ERROR: "+e.getMessage());
 			e.printStackTrace();
 		}
-		request.getRequestDispatcher("/index.jsp").forward(request, response);
+		
 	}
 
 	/**
