@@ -41,8 +41,7 @@ public class IndexServlet extends HttpServlet {
 		try {
 			
 			Metric metric = null;
-			System.out.println("Filter: "+viz);
-			
+
 			for(Metric m : viz.getVisminer().getMetrics()) {
 				if(m.getName().equals("NOC")){
 					metric = m;
