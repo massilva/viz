@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.visminer.model.Metric;
-import org.visminer.model.MetricValue;
+import org.visminer.main.VisMiner;
 import org.viz.main.Viz;
 
 /**
@@ -40,6 +39,8 @@ public class IndexServlet extends HttpServlet {
 		
 		try {
 			
+			VisMiner vm = viz.getVisminer();
+			/*
 			Metric metric = null;
 
 			for(Metric m : viz.getVisminer().getMetrics()) {
@@ -55,8 +56,8 @@ public class IndexServlet extends HttpServlet {
 					System.out.println("File: "+metricValue.getFile());
 					System.out.println("Value: "+metricValue.getValue());
 				}
-			}
-				
+			}*/
+			request.setAttribute("metrics",vm.getMetrics());	
 			request.setAttribute("LOCAL_REPOSITORY_PATH",viz.getLocalRepositoryPath());
 			request.getRequestDispatcher("/index.jsp").forward(request, response);
 		} catch (GitAPIException e) {
