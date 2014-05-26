@@ -1,3 +1,4 @@
+<%@page import="java.util.Collections"%>
 <%@page import="org.visminer.model.MetricValue"%>
 <%@page import="java.io.PrintWriter"%>
 <%@page import="java.util.List"%>
@@ -55,24 +56,27 @@
     <%@include file='footer.jsp' %>
     <% 
     List<MetricValue> locMetricValue = (List<MetricValue>) request.getAttribute("locMetricValue");
-    int major = 0;
+    int greater = 0;
    	int [] metricsValues = new int[locMetricValue.size()];
     double [] values = new double[metricsValues.length];
     
+    MetricValue mv = new MetricValue();
+    PrintWriter writer = response.getWriter();
+    
     for(MetricValue metricValue : locMetricValue){
-    	if(metricValue.getValue() > major){
-			major = metricValue.getValue();
-		}
+    	//verifies that the value of metricValue is greater than the last value is set higher and the file exists because of the LOC TAG
+    	if(metricValue.getValue() > greater && metricValue.getFile() != null){
+			greater = metricValue.getValue();
+   		}
     }
     
-    PrintWriter writer = response.getWriter();
     writer.println("<script type='text/javascript' src='js/d3.v3.min.js'></script>");
    	String script = "<script>function histogram(){\n";
-	script += "var major = "+major+";\n";
+	script += "var greater = "+greater+";\n";
    	script += "var metricValue = [";
    	int i = 0;
    	for(MetricValue metricValue : locMetricValue){
-   		values[i] = (metricValue.getValue() / major);
+   		values[i] = (metricValue.getValue() / greater);
    		script += metricValue.getValue();
    		if(i != locMetricValue.size() - 1)
    			script += ",";
@@ -82,7 +86,6 @@
    	script += "var values = []\n";
    	script += "for(var i = 0; i < metricValue.length; i++){\n"
    		   	 +"		values[i] = metricValue[i];\n"
-   		   	 +"		console.log(values[i])"
    		   	 +"}\n";
    	script	+= "//A formatter for counts.\n"
 		+"var formatCount = d3.format(',.0f');\n"
@@ -93,7 +96,7 @@
 		+"	left : 30\n"
 		+"}, width = 960 - margin.left - margin.right, height = 500 - margin.top\n"
 		+"		- margin.bottom;\n"
-		+"var x = d3.scale.linear().domain([ 0, "+major+"]).range([ 0, width ]);\n"
+		+"var x = d3.scale.linear().domain([ 0, "+greater+"]).range([ 0, width ]);\n"
 		+"\n"
 		+"//Generate a histogram using twenty uniformly-spaced bins.\n"
 		+"var data = d3.layout.histogram().bins(x.ticks(20))(values);\n"
