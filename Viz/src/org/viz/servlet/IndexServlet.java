@@ -36,27 +36,13 @@ public class IndexServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		Viz viz = (Viz)session.getAttribute("viz");
-		
-		try {
-			
-			VisMiner vm = viz.getVisminer();
-			/*
-			Metric metric = null;
 
-			for(Metric m : viz.getVisminer().getMetrics()) {
-				if(m.getName().equals("NOC")){
-					metric = m;
-					break;
-				}
+		try {
+			VisMiner vm = viz.getVisminer();
+			request.setAttribute("m",request.getParameter("m"));
+			if(request.getParameter("m") == null){
+				request.setAttribute("m","LOC");
 			}
-			
-			if(metric != null){
-				System.out.println(metric.getName()+"-"+metric.getDescription());
-				for (MetricValue metricValue : metric.getMetricValues()) {
-					System.out.println("File: "+metricValue.getFile());
-					System.out.println("Value: "+metricValue.getValue());
-				}
-			}*/
 			request.setAttribute("metrics",vm.getMetrics());	
 			request.setAttribute("LOCAL_REPOSITORY_PATH",viz.getLocalRepositoryPath());
 			request.getRequestDispatcher("/index.jsp").forward(request, response);

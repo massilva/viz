@@ -24,29 +24,30 @@
            		<div class="repository">LOCAL_REPOSITORY_PATH = '<%= request.getAttribute("LOCAL_REPOSITORY_PATH") %>'</div>
 				<hr/>
 				<section id="metrics" class="col-md-2">
-					<header><strong>List of implemented metrics</strong></header>
+					<header>
+						<h4>
+							<strong>List of implemented metrics</strong>
+						</h4>
+					</header>
 					<ol class="listMetrics">
 					<c:set var='locMetricValue' value="new MetricValue()"></c:set>
 			        <c:forEach items="${metrics}" var="metric">
-				        <li>${metric.name} - ${metric.description}</li>
+				        <li><a href="index.do?m=${metric.name}" >${metric.name} - ${metric.description}</a></li>
 				        <ul>
-				        <c:if test="${metric.name == 'LOC'}">
+				        <c:if test="${metric.name == m}">
 				        	<c:set var="locMetricValue" scope="request" value="${metric.metricValues}"></c:set>
-			        		<c:set var="metricName" scope="request" value="${metric.name}	"></c:set>
+			        		<c:set var="metricName" scope="request" value="${metric.name}"></c:set>
 			        		<c:set var="metricDescription" scope="request" value="${metric.description}"></c:set>
 			        	</c:if>
-				        <%-- <c:forEach items="${metric.metricValues}" var="metricValue">
-				        	<c:if test="${metricValue.file != null}">
-				        		<li>${metricValue.file.path}</li>
-				        	</c:if>
-				        	<li>${metricValue.value}</li>
-				        </c:forEach> --%>
 				        </ul>
 					</c:forEach>
 					</ol>
-					<a href='treemap.do' class="btn btn-default" target="_blank">
-						<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
-					</a>
+					<div class="examples">
+						<h4>Examples:</h4>
+						<a href='treemap.do' class="btn btn-default" target="_blank">
+							<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
+						</a>
+					</div>
 				</section>
 				<section id="loc" class="col-md-10"></section>
            </div>
@@ -55,7 +56,7 @@
     <%@include file='footer.jsp' %>
     <% 
     List<MetricValue> locMetricValue = (List<MetricValue>) request.getAttribute("locMetricValue");
-    int greater = 0;
+    int greater = 1;
    	int [] metricsValues = new int[locMetricValue.size()];
     double [] values = new double[metricsValues.length];
     
@@ -106,10 +107,12 @@
 		+"var xAxis = d3.svg.axis().scale(x).orient('bottom');\n"
 		+"\n"
 		+"var strong = document.createElement('strong');\n"
+		+"var h4 = document.createElement('h4');\n"
 		+"var t = document.createTextNode('Histogram of Metric "+request.getAttribute("metricName")+" - "+request.getAttribute("metricDescription")+"');\n"
 		+"strong.appendChild(t);\n"
+		+"h4.appendChild(strong);\n"
 		+"var loc = document.getElementById('loc');\n"
-		+"loc.appendChild(strong);\n"
+		+"loc.appendChild(h4);\n"
 		+"var svg = d3.select('#loc').append('svg').attr('width',\n"
 		+"	width + margin.left + margin.right).attr('height',\n"
 		+"	height + margin.top + margin.bottom).append('g').attr(\n"
