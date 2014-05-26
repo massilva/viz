@@ -10,9 +10,9 @@
 <title>Visualization</title>
 <link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/histogram.css">
+<link rel="stylesheet" href="css/custom.css">
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/d3.v3.min.js"></script>
 <script type="text/javascript" src="js/functions.js"></script>
 </head>
 <body>
@@ -21,22 +21,19 @@
         <div class="row" id="top">
 			<div class="col-md-12" style="margin-top: 0px;">
            		<div class="repository">LOCAL_REPOSITORY_PATH = '<%= request.getAttribute("LOCAL_REPOSITORY_PATH") %>'</div>
-				<section id="metrics">
-					<header>List of implemented metrics</header>
-					<ol class="metrics">
-					<c:set var='major' value="0" scope="request"></c:set>
-			        <c:set var='locMetricValue' value="new MetricValue()"></c:set>
+				<hr/>
+				<section id="metrics" class="col-md-2">
+					<header><strong>List of implemented metrics</strong></header>
+					<ol class="listMetrics">
+					<c:set var='locMetricValue' value="new MetricValue()"></c:set>
 			        <c:forEach items="${metrics}" var="metric">
 				        <li>${metric.name} - ${metric.description}</li>
 				        <ul>
 				        <c:if test="${metric.name == 'LOC'}">
 				        	<c:set var="locMetricValue" scope="request" value="${metric.metricValues}"></c:set>
-				        	<c:forEach items="${metric.metricValues}" var="metricValue">
-				        		<c:if test="${metricValue.value > major}">
-				        			<c:set var='major' scope="request" value="${metricValue.value}"></c:set>					        
-				        		</c:if>
-					        </c:forEach>
-				        </c:if>
+			        		<c:set var="metricName" scope="request" value="${metric.name}	"></c:set>
+			        		<c:set var="metricDescription" scope="request" value="${metric.description}"></c:set>
+			        	</c:if>
 				        <%-- <c:forEach items="${metric.metricValues}" var="metricValue">
 				        	<c:if test="${metricValue.file != null}">
 				        		<li>${metricValue.file.path}</li>
@@ -47,6 +44,7 @@
 					</c:forEach>
 					</ol>
 				</section>
+				<section id="loc" class="col-md-10"></section>
 				<hr/>
 				<a href='treemap.do' class="btn btn-default" target="_blank">
 					<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
@@ -56,74 +54,83 @@
     </div>
     <%@include file='footer.jsp' %>
     <% 
-    List<MetricValue> locMetricValue = (List<MetricValue>)request.getAttribute("locMetricValue");
-    //int major = (int)request.getAttribute("major");
+    List<MetricValue> locMetricValue = (List<MetricValue>) request.getAttribute("locMetricValue");
+    int major = 0;
    	int [] metricsValues = new int[locMetricValue.size()];
-    float [] values = new float[metricsValues.length];
+    double [] values = new double[metricsValues.length];
     
-    int i = 0;
+    for(MetricValue metricValue : locMetricValue){
+    	if(metricValue.getValue() > major){
+			major = metricValue.getValue();
+		}
+    }
+    
+    PrintWriter writer = response.getWriter();
+    writer.println("<script type='text/javascript' src='js/d3.v3.min.js'></script>");
+   	String script = "<script>function histogram(){\n";
+	script += "var major = "+major+";\n";
+   	script += "var metricValue = [";
+   	int i = 0;
    	for(MetricValue metricValue : locMetricValue){
-   		values[i] = metricValue.getValue();
+   		values[i] = (metricValue.getValue() / major);
+   		script += metricValue.getValue();
+   		if(i != locMetricValue.size() - 1)
+   			script += ",";
    		i++;
    	}
-   	
-   	PrintWriter writer = response.getWriter();
-   	for(float x: values){
-   		writer.println("<script>console.log('"+x+"');</script>");
-   	}
+   	script += "];\n";
+   	script += "var values = []\n";
+   	script += "for(var i = 0; i < metricValue.length; i++){\n"
+   		   	 +"		values[i] = metricValue[i];\n"
+   		   	 +"		console.log(values[i])"
+   		   	 +"}\n";
+   	script	+= "//A formatter for counts.\n"
+		+"var formatCount = d3.format(',.0f');\n"
+		+"var margin = {\n"
+		+"	top : 10,\n"
+		+"	right : 30,\n"
+		+"	bottom : 30,\n"
+		+"	left : 30\n"
+		+"}, width = 960 - margin.left - margin.right, height = 500 - margin.top\n"
+		+"		- margin.bottom;\n"
+		+"var x = d3.scale.linear().domain([ 0, "+major+"]).range([ 0, width ]);\n"
+		+"\n"
+		+"//Generate a histogram using twenty uniformly-spaced bins.\n"
+		+"var data = d3.layout.histogram().bins(x.ticks(20))(values);\n"
+		+"var y = d3.scale.linear().domain([ 0,d3.max(data, function(d) {\n"
+		+"	return d.y;\n"
+		+"}) ]).range([height, 0 ]);\n"
+		+"\n"
+		+"var xAxis = d3.svg.axis().scale(x).orient('bottom');\n"
+		+"\n"
+		+"var strong = document.createElement('strong');\n"
+		+"var t = document.createTextNode('Histogram of Metric "+request.getAttribute("metricName")+" - "+request.getAttribute("metricDescription")+"');\n"
+		+"strong.appendChild(t);\n"
+		+"var loc = document.getElementById('loc');\n"
+		+"loc.appendChild(strong);\n"
+		+"var svg = d3.select('#loc').append('svg').attr('width',\n"
+		+"	width + margin.left + margin.right).attr('height',\n"
+		+"	height + margin.top + margin.bottom).append('g').attr(\n"
+		+"	'transform',\n"
+		+"	'translate(' + margin.left + ',' + margin.top + ')');\n"
+		+"var bar = svg.selectAll('.bar').data(data).enter().append('g').attr(\n"
+		+"'class', 'bar').attr('transform', function(d) {\n"
+		+"		return 'translate(' + x(d.x) + ',' + y(d.y) + ')';\n"
+		+"	});\n"
+		+"bar.append('rect').attr('x', 1).attr('width', x(data[0].dx) - 1).attr(\n"
+		+"'height', function(d) {\n"
+		+"	return height - y(d.y);\n"
+		+"});\n"
+		+"bar.append('text').attr('dy', '.75em').attr('y', 6).attr('x',\n"
+		+"	x(data[0].dx) / 2).attr('text-anchor', 'middle').text(\n"
+		+"		function(d) {\n"
+		+"			return formatCount(d.y);\n"
+		+"		});\n"
+		+"svg.append('g').attr('class', 'x axis').attr('transform',\n"
+		+"	'translate(0,' + height + ')').call(xAxis);\n"
+		+"}</script>";
+   	writer.println(script);
    	%>
-    <script type="text/javascript">
-    	
-		//Generate a Bates distribution of 10 random variables.
-		var values = [ 0.2, 0.3, 0.4, 0.2, 0.4, 0, 1 ];
-
-		//A formatter for counts.
-		var formatCount = d3.format(",.0f");
-
-		var margin = {
-			top : 10,
-			right : 30,
-			bottom : 30,
-			left : 30
-		}, width = 960 - margin.left - margin.right, height = 500 - margin.top
-				- margin.bottom;
-
-		var x = d3.scale.linear().domain([ 0, 1 ]).range([ 0, width ]);
-
-		//Generate a histogram using twenty uniformly-spaced bins.
-		var data = d3.layout.histogram().bins(x.ticks(20))(values);
-
-		var y = d3.scale.linear().domain([ 0, d3.max(data, function(d) {
-			return d.y;
-		}) ]).range([ height, 0 ]);
-
-		var xAxis = d3.svg.axis().scale(x).orient("bottom");
-
-		var svg = d3.select("body").append("svg").attr("width",
-				width + margin.left + margin.right).attr("height",
-				height + margin.top + margin.bottom).append("g").attr(
-				"transform",
-				"translate(" + margin.left + "," + margin.top + ")");
-
-		var bar = svg.selectAll(".bar").data(data).enter().append("g").attr(
-				"class", "bar").attr("transform", function(d) {
-			return "translate(" + x(d.x) + "," + y(d.y) + ")";
-		});
-
-		bar.append("rect").attr("x", 1).attr("width", x(data[0].dx) - 1).attr(
-				"height", function(d) {
-					return height - y(d.y);
-				});
-
-		bar.append("text").attr("dy", ".75em").attr("y", 6).attr("x",
-				x(data[0].dx) / 2).attr("text-anchor", "middle").text(
-				function(d) {
-					return formatCount(d.y);
-				});
-
-		svg.append("g").attr("class", "x axis").attr("transform",
-				"translate(0," + height + ")").call(xAxis);
-	</script>
-
+   	<script>$(document).ready(function(){ histogram(); });</script>
 </body>
 </html>
