@@ -44,12 +44,11 @@
 				        </ul>
 					</c:forEach>
 					</ol>
+					<a href='treemap.do' class="btn btn-default" target="_blank">
+						<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
+					</a>
 				</section>
 				<section id="loc" class="col-md-10"></section>
-				<hr/>
-				<a href='treemap.do' class="btn btn-default" target="_blank">
-					<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
-				</a>
            </div>
     	</div>
     </div>
