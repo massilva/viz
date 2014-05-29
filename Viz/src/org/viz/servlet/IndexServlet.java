@@ -64,7 +64,7 @@ public class IndexServlet extends HttpServlet {
 			double greater = 1;
 			JSONArray json = new JSONArray();
 			try {
-				writer = new JsonWriter(new FileWriter("/home/massilva/workspace/Viz/Viz/WebContent/json/bubbleChart.json"));
+				writer = new JsonWriter(new FileWriter("/home/massilva/workspace/Viz/Viz/WebContent/bubbleChart.json"));
 				writer.beginObject(); // {
 				writer.name("name").value("class"); // "name" : "class"
 				writer.name("children"); // "children" : 
