@@ -30,17 +30,9 @@
 						</h4>
 					</header>
 					<ol class="listMetrics">
-					<c:set var='locMetricValue' value="new MetricValue()"></c:set>
-			        <c:forEach items="${metrics}" var="metric">
+					<c:forEach items="${metrics}" var="metric">
 				        <li><a href="index.do?m=${metric.name}" >${metric.name} - ${metric.description}</a></li>
-				        <ul>
-				        <c:if test="${metric.name == m}">
-				        	<c:set var="locMetricValue" scope="request" value="${metric.metricValues}"></c:set>
-			        		<c:set var="metricName" scope="request" value="${metric.name}"></c:set>
-			        		<c:set var="metricDescription" scope="request" value="${metric.description}"></c:set>
-			        	</c:if>
-				        </ul>
-					</c:forEach>
+				    </c:forEach>
 					</ol>
 					<div class="examples">
 						<h4>Examples:</h4>
@@ -55,39 +47,14 @@
     </div>
     <%@include file='footer.jsp' %>
     <% 
-    List<MetricValue> locMetricValue = (List<MetricValue>) request.getAttribute("locMetricValue");
-    int greater = 1;
-   	int [] metricsValues = new int[locMetricValue.size()];
-    double [] values = new double[metricsValues.length];
+    String greater = (String)request.getAttribute("greater");
+    String values  = (String)request.getAttribute("values");
     
-    MetricValue mv = new MetricValue();
     PrintWriter writer = response.getWriter();
-    
-    for(MetricValue metricValue : locMetricValue){
-    	//verifies that the value of metricValue is greater than the last value is set higher and the file exists because of the LOC TAG
-    	if(metricValue.getValue() > greater && metricValue.getFile() != null){
-			greater = metricValue.getValue();
-   		}
-    }
-    
     writer.println("<script type='text/javascript' src='js/d3.v3.min.js'></script>");
    	String script = "<script>function histogram(){\n";
-	script += "var greater = "+greater+";\n";
-   	script += "var metricValue = [";
-   	int i = 0;
-   	for(MetricValue metricValue : locMetricValue){
-   		values[i] = (metricValue.getValue() / greater);
-   		script += metricValue.getValue();
-   		if(i != locMetricValue.size() - 1)
-   			script += ",";
-   		i++;
-   	}
-   	script += "];\n";
-   	script += "var values = []\n";
-   	script += "for(var i = 0; i < metricValue.length; i++){\n"
-   		   	 +"		values[i] = metricValue[i];\n"
-   		   	 +"}\n";
-   	script	+= "//A formatter for counts.\n"
+   	script += "var values = "+values+"\n";
+   	script += "//A formatter for counts.\n"
 		+"var formatCount = d3.format(',.0f');\n"
 		+"var margin = {\n"
 		+"	top : 10,\n"
@@ -113,26 +80,37 @@
 		+"h4.appendChild(strong);\n"
 		+"var loc = document.getElementById('loc');\n"
 		+"loc.appendChild(h4);\n"
+		+"\n"
 		+"var svg = d3.select('#loc').append('svg').attr('width',\n"
 		+"	width + margin.left + margin.right).attr('height',\n"
 		+"	height + margin.top + margin.bottom).append('g').attr(\n"
 		+"	'transform',\n"
 		+"	'translate(' + margin.left + ',' + margin.top + ')');\n"
-		+"var bar = svg.selectAll('.bar').data(data).enter().append('g').attr(\n"
+		+"\n"
+       	+"var bar = svg.selectAll('.bar').data(data).enter().append('g').attr(\n"
 		+"'class', 'bar').attr('transform', function(d) {\n"
 		+"		return 'translate(' + x(d.x) + ',' + y(d.y) + ')';\n"
 		+"	});\n"
-		+"bar.append('rect').attr('x', 1).attr('width', x(data[0].dx) - 1).attr(\n"
+		+"\n"
+       	+"bar.append('rect').attr('x', 1).attr('width', x(data[0].dx) - 1).attr(\n"
 		+"'height', function(d) {\n"
 		+"	return height - y(d.y);\n"
 		+"});\n"
-		+"bar.append('text').attr('dy', '.75em').attr('y', 6).attr('x',\n"
+		+"\n"
+       	+"bar.append('text').attr('dy', '.75em').attr('y', 10).attr('x',\n"
 		+"	x(data[0].dx) / 2).attr('text-anchor', 'middle').text(\n"
 		+"		function(d) {\n"
 		+"			return formatCount(d.y);\n"
 		+"		});\n"
-		+"svg.append('g').attr('class', 'x axis').attr('transform',\n"
-		+"	'translate(0,' + height + ')').call(xAxis);\n"
+		+"\n"
+       	+"var xAxisL = svg.append('g').attr('class', 'x axis')"
+       	+".attr('transform','translate(0,' + (height) + ')')"
+       	+".call(xAxis);\n"
+		+"xAxisL.append('text')"
+        +".attr('class', 'axis-label')"
+        +".attr('x', margin.left)"
+      	+".attr('dy', 56)"
+      	+".text('Number');\n"
 		+"}</script>";
    	writer.println(script);
    	%>
