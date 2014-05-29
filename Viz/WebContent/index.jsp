@@ -1,3 +1,6 @@
+<%@page import="org.viz.servlet.IndexServlet"%>
+<%@page import="org.viz.main.Viz"%>
+<%@page import="org.viz.javascript.ExportToJavascript"%>
 <%@page import="java.util.Collections"%>
 <%@page import="org.visminer.model.MetricValue"%>
 <%@page import="java.io.PrintWriter"%>
@@ -15,6 +18,7 @@
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <script type="text/javascript" src="js/functions.js"></script>
+<script type='text/javascript' src='js/d3.v3.min.js'></script>
 </head>
 <body>
 	<%@include file='top.jsp' %>
@@ -41,7 +45,7 @@
 						</a>
 					</div>
 				</section>
-				<section id="loc" class="col-md-10"></section>
+				<section id="chart" class="col-md-10"></section>
            </div>
     	</div>
     </div>
@@ -50,70 +54,12 @@
     String greater = (String)request.getAttribute("greater");
     String values  = (String)request.getAttribute("values");
     
+    ExportToJavascript js = new ExportToJavascript();
+    //String histogram = js.generatorHistogram(values,greater,(String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription"));
     PrintWriter writer = response.getWriter();
-    writer.println("<script type='text/javascript' src='js/d3.v3.min.js'></script>");
-   	String script = "<script>function histogram(){\n";
-   	script += "var values = "+values+"\n";
-   	script += "//A formatter for counts.\n"
-		+"var formatCount = d3.format(',.0f');\n"
-		+"var margin = {\n"
-		+"	top : 10,\n"
-		+"	right : 30,\n"
-		+"	bottom : 30,\n"
-		+"	left : 30\n"
-		+"}, width = 960 - margin.left - margin.right, height = 500 - margin.top\n"
-		+"		- margin.bottom;\n"
-		+"var x = d3.scale.linear().domain([ 0, "+greater+"]).range([ 0, width ]);\n"
-		+"\n"
-		+"//Generate a histogram using twenty uniformly-spaced bins.\n"
-		+"var data = d3.layout.histogram().bins(x.ticks(20))(values);\n"
-		+"var y = d3.scale.linear().domain([ 0,d3.max(data, function(d) {\n"
-		+"	return d.y;\n"
-		+"}) ]).range([height, 0 ]);\n"
-		+"\n"
-		+"var xAxis = d3.svg.axis().scale(x).orient('bottom');\n"
-		+"\n"
-		+"var strong = document.createElement('strong');\n"
-		+"var h4 = document.createElement('h4');\n"
-		+"var t = document.createTextNode('Histogram of Metric "+request.getAttribute("metricName")+" - "+request.getAttribute("metricDescription")+"');\n"
-		+"strong.appendChild(t);\n"
-		+"h4.appendChild(strong);\n"
-		+"var loc = document.getElementById('loc');\n"
-		+"loc.appendChild(h4);\n"
-		+"\n"
-		+"var svg = d3.select('#loc').append('svg').attr('width',\n"
-		+"	width + margin.left + margin.right).attr('height',\n"
-		+"	height + margin.top + margin.bottom).append('g').attr(\n"
-		+"	'transform',\n"
-		+"	'translate(' + margin.left + ',' + margin.top + ')');\n"
-		+"\n"
-       	+"var bar = svg.selectAll('.bar').data(data).enter().append('g').attr(\n"
-		+"'class', 'bar').attr('transform', function(d) {\n"
-		+"		return 'translate(' + x(d.x) + ',' + y(d.y) + ')';\n"
-		+"	});\n"
-		+"\n"
-       	+"bar.append('rect').attr('x', 1).attr('width', x(data[0].dx) - 1).attr(\n"
-		+"'height', function(d) {\n"
-		+"	return height - y(d.y);\n"
-		+"});\n"
-		+"\n"
-       	+"bar.append('text').attr('dy', '.75em').attr('y', 10).attr('x',\n"
-		+"	x(data[0].dx) / 2).attr('text-anchor', 'middle').text(\n"
-		+"		function(d) {\n"
-		+"			return formatCount(d.y);\n"
-		+"		});\n"
-		+"\n"
-       	+"var xAxisL = svg.append('g').attr('class', 'x axis')"
-       	+".attr('transform','translate(0,' + (height) + ')')"
-       	+".call(xAxis);\n"
-		+"xAxisL.append('text')"
-        +".attr('class', 'axis-label')"
-        +".attr('x', margin.left)"
-      	+".attr('dy', 56)"
-      	+".text('Number');\n"
-		+"}</script>";
-   	writer.println(script);
-   	%>
-   	<script>$(document).ready(function(){ histogram(); });</script>
+    //writer.println(histogram);
+	writer.println(js.bubbleChart((String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription")));
+	%>
+   	<script>$(document).ready(function(){ bubbleChart(); });</script>
 </body>
 </html>

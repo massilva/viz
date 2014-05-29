@@ -1,8 +1,10 @@
 
 package org.viz.servlet;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +18,8 @@ import org.visminer.main.VisMiner;
 import org.visminer.model.Metric;
 import org.visminer.model.MetricValue;
 import org.viz.main.Viz;
+
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Servlet implementation class IndexServlet
@@ -55,14 +59,38 @@ public class IndexServlet extends HttpServlet {
 				}
 			}
 			
+			JsonWriter writer;
+
 			double greater = 1;
 			JSONArray json = new JSONArray();
-		    for(MetricValue mv : chosen.getMetricValues()){
-		    	//verifies that the value of metricValue is greater than the last value is set higher and the file exists because of the LOC TAG
-		    	if(mv.getValue() > greater && mv.getFile() != null){
-					greater = mv.getValue();
-		   		}
-		    	json.put(mv.getValue());
+			try {
+				writer = new JsonWriter(new FileWriter("/home/massilva/workspace/Viz/Viz/WebContent/json/bubbleChart.json"));
+				writer.beginObject(); // {
+				writer.name("name").value("class"); // "name" : "class"
+				writer.name("children"); // "children" : 
+				writer.beginArray(); // [
+				for(MetricValue mv : chosen.getMetricValues()){
+			    	//verifies that the value of metricValue is greater than the last value is set higher and the file exists because of the LOC TAG
+			    	if(mv.getValue() > greater && mv.getFile() != null){
+						greater = mv.getValue();
+			   		}
+			    	if(mv.getFile() != null){
+				    	writer.beginObject(); // {
+				    	int li = mv.getFile().getPath().lastIndexOf("/") + 1;
+				    	String file = mv.getFile().getPath().substring(li);
+				    	String nameFile = file.split(".java")[0];
+				    	writer.name("name").value(nameFile); 
+						writer.name("size").value(mv.getValue());
+						writer.endObject(); // }
+						
+						json.put(mv.getValue());
+			    	}
+				}
+				writer.endArray(); // ]				
+				writer.endObject(); // }
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		    
 		    request.setAttribute("values",json.toString());	
