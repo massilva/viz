@@ -2,12 +2,6 @@ package org.viz.filter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -24,6 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.viz.main.Viz;
+import org.viz.model.Configuration;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -55,20 +50,11 @@ public class Main implements Filter {
 		if(!XmlFile.exists()){
 			String redirect = ((HttpServletRequest)(request)).getContextPath()+"/index.cfg";
 			res.sendRedirect(redirect);
-		}
-		else{
-			try {
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder;
-				dBuilder = dbFactory.newDocumentBuilder();
-				Document doc = dBuilder.parse(XmlFile);
-				/*
-				 * optional, but recommended
-				 * read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-				 */
-				doc.getDocumentElement().normalize();
-				System.out.println(doc);
-				session.setAttribute("config",doc);
+		}else{
+			try{
+				Configuration cfg = new Configuration();
+				Document doc = cfg.readXmlFile(XmlFile);
+				System.out.println(cfg.docToString(doc));
 				Viz viz = (Viz)session.getAttribute("viz");		
 				if(viz==null){
 					/*
