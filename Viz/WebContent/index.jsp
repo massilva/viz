@@ -7,6 +7,14 @@
 <%@page import="java.util.List"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%
+ExportToJavascript js = new ExportToJavascript();
+PrintWriter writer = response.getWriter(); 
+writer.println("<script type='text/javascript' src='js/jquery-1.11.0.min.js'></script>"); 
+String charts = js.exportAllCharts((String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription"),(String)request.getAttribute("values"),(String)request.getAttribute("greater"),(String)request.getAttribute("selectedChart"));
+writer.println(charts);
+%>
+
 <!DOCTYPE html PUBLIC>
 <html>
 <head>
@@ -15,10 +23,9 @@
 <link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/histogram.css">
 <link rel="stylesheet" href="css/custom.css">
-<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type='text/javascript' src='js/d3.v3.min.js'></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <script type="text/javascript" src="js/functions.js"></script>
-<script type='text/javascript' src='js/d3.v3.min.js'></script>
 </head>
 <body>
 	<%@include file='top.jsp' %>
@@ -28,21 +35,28 @@
            		<div class="repository">LOCAL_REPOSITORY_PATH = '<%= request.getAttribute("LOCAL_REPOSITORY_PATH") %>'</div>
 				<hr/>
 				<section id="metrics" class="col-md-2">
-					<header>
-						<h4>
-							<strong>List of implemented metrics</strong>
-						</h4>
-					</header>
-					<ol class="listMetrics">
-					<c:forEach items="${metrics}" var="metric">
-				        <li><a href="index.do?m=${metric.name}" >${metric.name} - ${metric.description}</a></li>
-				    </c:forEach>
-					</ol>
-					<div class="examples">
-						<h4>Examples:</h4>
-						<a href='treemap.do' class="btn btn-default" target="_blank">
-							<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
-						</a>
+					<div class="inputs">
+						<h4>Graphics:</h4>
+						<select name="graphic">
+							<option value="bubbleChart">Bubble Chart</option>
+							<option value="histogramChart">Histogram Chart</option>
+						</select>
+					</div>
+					<div>
+						<div>
+							<h4>List of implemented metrics:</h4>
+						</div>
+						<ol class="listMetrics">
+						<c:forEach items="${metrics}" var="metric">
+					        <li><a href="index.do?m=${metric.name}" >${metric.name} - ${metric.description}</a></li>
+					    </c:forEach>
+						</ol>
+						<div class="examples">
+							<h4>Examples:</h4>
+							<a href='treemap.do' class="btn btn-default" target="_blank">
+								<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
+							</a>
+						</div>
 					</div>
 				</section>
 				<section id="chart" class="col-md-10"></section>
@@ -50,16 +64,5 @@
     	</div>
     </div>
     <%@include file='footer.jsp' %>
-    <% 
-    String greater = (String)request.getAttribute("greater");
-    String values  = (String)request.getAttribute("values");
-    
-    ExportToJavascript js = new ExportToJavascript();
-    //String histogram = js.generatorHistogram(values,greater,(String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription"));
-    PrintWriter writer = response.getWriter();
-    //writer.println(histogram);
-	writer.println(js.bubbleChart((String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription")));
-	%>
-   	<script>$(document).ready(function(){ bubbleChart(); });</script>
 </body>
 </html>
