@@ -1,0 +1,6 @@
+.listMetrics{margin-top:10px;}
+strong{text-align:center;}
+#loc{ border-left: 1px solid #ccc;}
+.icon_db{background-image: url("img/db.png"); background-size: 32px; height: 32px; width: 32px;}
+span.required{color: #FF0000;}
+span.legend{color: #333;}
