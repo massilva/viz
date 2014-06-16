@@ -65,7 +65,7 @@ public class ExportToJavascript {
 		+"    .attr('height', height)\n"
 		+"    .attr('class', 'bubble');\n"
 		+"\n"
-		+"d3.json('bubbleChart.json', function(error, root) {\n"
+		+"d3.json('chart.json', function(error, root) {\n"
 		+"  var node = svg.selectAll('.node')\n"
 		+"      .data(bubble.nodes(classes(root))\n"
 		+"      .filter(function(d) { return !d.children; }))\n"

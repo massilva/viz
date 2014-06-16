@@ -54,7 +54,7 @@ public class Main implements Filter {
 			try{
 				Configuration cfg = new Configuration();
 				Document doc = cfg.readXmlFile(XmlFile);
-				System.out.println(cfg.docToString(doc));
+				//System.out.println(cfg.docToString(doc));
 				Viz viz = (Viz)session.getAttribute("viz");		
 				if(viz==null){
 					/*

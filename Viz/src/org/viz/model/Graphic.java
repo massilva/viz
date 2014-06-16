@@ -1,11 +1,15 @@
 package org.viz.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import org.json.JSONArray;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.visminer.model.MetricValue;
 
 import com.google.gson.stream.JsonWriter;
@@ -49,7 +53,7 @@ public class Graphic {
 			    	writer.name("name").value(file); 
 					writer.name("size").value(mv.getValue());
 					writer.endObject(); // }
-					json.put(mv.getValue());
+					json.add(mv.getValue());
 		    	}
 			}
 			writer.endArray(); // ]				
@@ -61,4 +65,10 @@ public class Graphic {
 		return json.toString();
 	}
 	
+	public String readJson() throws org.json.simple.parser.ParseException, FileNotFoundException, IOException{
+		JSONParser parser = new JSONParser();	 
+		Object obj = parser.parse(new FileReader(this.path)); 
+		JSONObject jsonObject = (JSONObject) obj;
+		return jsonObject.toJSONString();
+	}
 }

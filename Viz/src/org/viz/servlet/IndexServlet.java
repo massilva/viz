@@ -44,7 +44,7 @@ public class IndexServlet extends HttpServlet {
 			VisMiner vm = viz.getVisminer();
 			
 			String metricChosen = request.getParameter("m");
-			if(request.getParameter("m") == null){
+			if(metricChosen == null){
 				metricChosen = "LOC";
 			}
 			
@@ -68,7 +68,7 @@ public class IndexServlet extends HttpServlet {
 		    	}
 			}
 			
-			Graphic g = new Graphic("/home/massilva/workspace/Viz/Viz/WebContent/bubbleChart.json");
+			Graphic g = new Graphic("chart.json");//new Graphic("/home/massilva/workspace/Viz/Viz/WebContent/bubbleChart.json");
 			String values = g.generateChart(chosen.getMetricValues());
 			
 			String selectedChart = "bubbleChart";

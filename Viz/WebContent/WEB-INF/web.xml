@@ -33,6 +33,14 @@
     <url-pattern>/index.cfg</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>chart</servlet-name>
+    <servlet-class>org.viz.servlet.ChartServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>chart</servlet-name>
+    <url-pattern>/chart.json</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>TreeMap</servlet-name>
     <servlet-class>org.viz.servlet.TreeMapServlet</servlet-class>
   </servlet>
