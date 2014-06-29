@@ -44,17 +44,14 @@ public class Main implements Filter {
 	 */
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		HttpSession session = ((HttpServletRequest)(request)).getSession();
-		HttpServletResponse res = (HttpServletResponse) response;   
-
+		HttpServletResponse res = (HttpServletResponse) response;
 		File XmlFile = new File("config.xml");
 		if(!XmlFile.exists()){
 			String redirect = ((HttpServletRequest)(request)).getContextPath()+"/index.cfg";
 			res.sendRedirect(redirect);
 		}else{
 			try{
-				Configuration cfg = new Configuration();
-				Document doc = cfg.readXmlFile(XmlFile);
-				//System.out.println(cfg.docToString(doc));
+				Configuration cfg = new Configuration(XmlFile);
 				Viz viz = (Viz)session.getAttribute("viz");		
 				if(viz==null){
 					/*
@@ -62,18 +59,16 @@ public class Main implements Filter {
 					 * IF is null THEN the user to want visualization information of new repository
 					 * ELSE the user to want visualization information of old repository
 					 */
-					boolean createTable = (request.getParameter("createTable") != null);
-					session.setAttribute("viz",new Viz(createTable));
+					boolean createTable = (request.getParameter("createTable") != null); //NOT IMPLEMENTED
+					session.setAttribute("viz",new Viz(cfg));
 				}			
 				chain.doFilter(request, response);
-
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			} catch (SAXException e) {
 				e.printStackTrace();
 			}
 		}
-
 	}
 
 	/**

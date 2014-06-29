@@ -45,16 +45,26 @@ public class Graphic {
 			writer.name("name").value("class"); // "name" : "class"
 			writer.name("children"); // "children" : 
 			writer.beginArray(); // [
-			for(MetricValue mv : chosen){
-		    	if(mv.getFile() != null){
-			    	writer.beginObject(); // {
-			    	int li = mv.getFile().getPath().lastIndexOf("/") + 1;
-			    	String file = mv.getFile().getPath().substring(li);
-			    	writer.name("name").value(file); 
-					writer.name("size").value(mv.getValue());
-					writer.endObject(); // }
-					json.add(mv.getValue());
-		    	}
+			//IF count elements is equal to ONE the metric is not metric file because of default the visminer store the total value of metric
+			if(chosen.size() == 1){
+				MetricValue mv = chosen.get(0);
+				writer.beginObject(); // {
+		    	writer.name("name").value(mv.getMetric().getDescription()); 
+				writer.name("size").value(mv.getValue());
+				writer.endObject(); // }
+				json.add(mv.getValue());
+			}else{
+				for(MetricValue mv : chosen){
+					if(mv.getFile() != null){
+				    	int li = mv.getFile().getPath().lastIndexOf("/") + 1;
+				    	String name = mv.getFile().getPath().substring(li);
+				    	writer.beginObject(); // {
+				    	writer.name("name").value(name); 
+						writer.name("size").value(mv.getValue());
+						writer.endObject(); // }
+						json.add(mv.getValue());
+				    }
+				}
 			}
 			writer.endArray(); // ]				
 			writer.endObject(); // }

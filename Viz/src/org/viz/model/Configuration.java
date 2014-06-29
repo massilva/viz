@@ -27,9 +27,13 @@ public class Configuration {
 	private boolean createTableFlag;
 	private String jdbc_user;
 	private String jdbc_password;
-
+	
 	public Configuration() {
 		
+	}
+	
+	public Configuration(File xmlFile) throws ParserConfigurationException, SAXException, IOException{
+		this.readXmlFileToObject(xmlFile);
 	}
 	
 	/**
@@ -178,6 +182,56 @@ public class Configuration {
 		 */
 		doc.getDocumentElement().normalize();
 		return doc;
+	}
+
+	/**
+	 * 
+	 * @param XmlFile
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	public void readXmlFileToObject(File XmlFile) throws ParserConfigurationException, SAXException, IOException{
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder;
+		dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(XmlFile);
+		/*
+		 * optional, but recommended
+		 * read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+		 */
+		doc.getDocumentElement().normalize();
+		
+		NodeList nList = doc.getElementsByTagName("remoteRepository");
+		for(int temp = 0; temp < nList.getLength(); temp++) {
+			Node nNode = nList.item(temp);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) nNode;
+				this.remoteRepositoryLogin = eElement.getElementsByTagName("login").item(0).getTextContent();
+				this.remoteRepositoryPassword = eElement.getElementsByTagName("password").item(0).getTextContent();
+			}
+		}
+		nList = doc.getElementsByTagName("localRepository");
+		for(int temp = 0; temp < nList.getLength(); temp++) {
+			Node nNode = nList.item(temp);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) nNode;
+				this.localRepositoryPath = eElement.getElementsByTagName("path").item(0).getTextContent();
+				this.localRepositoryName = eElement.getElementsByTagName("name").item(0).getTextContent();
+				this.localRepositoryOwner = eElement.getElementsByTagName("owner").item(0).getTextContent();
+				this.createTableFlag = Boolean.parseBoolean(eElement.getElementsByTagName("createTableFlag").item(0).getTextContent());
+			}
+		}
+		nList = doc.getElementsByTagName("jdbc"); 
+		for(int temp = 0; temp < nList.getLength(); temp++) {
+			Node nNode = nList.item(temp);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) nNode;
+				this.jdbc_user = eElement.getElementsByTagName("user").item(0).getTextContent();
+				this.jdbc_password = eElement.getElementsByTagName("password").item(0).getTextContent();
+			}
+		}
+		
 	}
 	
 	public String docToString(Document doc){

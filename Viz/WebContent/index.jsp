@@ -37,7 +37,7 @@ writer.println(charts);
 				<section id="metrics" class="col-md-2">
 					<div class="inputs">
 						<h4>Graphics:</h4>
-						<select name="graphic">
+						<select id="chartSelect" name="graphic">
 							<option value="bubbleChart">Bubble Chart</option>
 							<option value="histogramChart">Histogram Chart</option>
 						</select>

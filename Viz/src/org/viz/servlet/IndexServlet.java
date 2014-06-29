@@ -39,15 +39,12 @@ public class IndexServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		Viz viz = (Viz)session.getAttribute("viz");
-
 		try {
 			VisMiner vm = viz.getVisminer();
-			
 			String metricChosen = request.getParameter("m");
 			if(metricChosen == null){
 				metricChosen = "LOC";
-			}
-			
+			}	
 			//getting the chosen metric
 			Metric chosen = new Metric();
 			for (Metric m : vm.getMetrics()) {
@@ -56,30 +53,29 @@ public class IndexServlet extends HttpServlet {
 					break;
 				}
 			}
-			
 			//getting the most value from the value of the metric
 			double greater = 1;
 			for(MetricValue mv : chosen.getMetricValues()){
-				if(mv.getFile() != null){
-				    //verifies that the value of metricValue is greater than the last value is set higher and the file exists because of the LOC TAG
-					if(mv.getValue() > greater && mv.getFile() != null){
-						greater = mv.getValue();
-					}
-		    	}
+//				if(mv.getFile() != null){
+//				isFileMetric = true;
+			    //verifies that the value of metricValue is greater than the last value is set higher and the file exists because of the LOC TAG
+				if(mv.getValue() > greater){
+					greater = mv.getValue();
+				}
+//		    	}
 			}
-			
+			//Get json with datas
 			Graphic g = new Graphic("chart.json");//new Graphic("/home/massilva/workspace/Viz/Viz/WebContent/bubbleChart.json");
 			String values = g.generateChart(chosen.getMetricValues());
-			
+			//Setting the selected chart 
 			String selectedChart = "bubbleChart";
-			
 			request.setAttribute("selectedChart",selectedChart);	
 		    request.setAttribute("values",values);	
 		    request.setAttribute("greater",greater+"");
 		    request.setAttribute("metrics",vm.getMetrics());
 		    request.setAttribute("metricName",chosen.getName());
 		    request.setAttribute("metricDescription",chosen.getDescription());	
-			request.setAttribute("LOCAL_REPOSITORY_PATH",Viz.getLocalRepositoryPath());
+			request.setAttribute("LOCAL_REPOSITORY_PATH",viz.getLocalRepositoryPath());
 			request.getRequestDispatcher("/index.jsp").forward(request, response);
 		} catch (GitAPIException e) {
 			PrintWriter writer = response.getWriter();
