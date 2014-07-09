@@ -12,3 +12,11 @@ function addFilho(id_pai){
 	$("#filho_"+id_pai).append(template);
 	filho.val(index++);
 }
+
+function change(){
+	var r = $("#relatedTo").find(":selected").val();
+	var c = $("#chartSelect").find(":selected").val();
+	var m = $("#metric").find(":selected").val();
+	var host = window.location.origin+window.location.pathname+"?m="+m+"&c="+c+"&r="+r;
+	window.location.href = host;
+}

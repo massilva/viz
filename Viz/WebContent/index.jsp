@@ -14,7 +14,6 @@ writer.println("<script type='text/javascript' src='js/jquery-1.11.0.min.js'></s
 String charts = js.exportAllCharts((String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription"),(String)request.getAttribute("values"),(String)request.getAttribute("greater"),(String)request.getAttribute("selectedChart"));
 writer.println(charts);
 %>
-
 <!DOCTYPE html PUBLIC>
 <html>
 <head>
@@ -26,18 +25,40 @@ writer.println(charts);
 <script type='text/javascript' src='js/d3.v3.min.js'></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <script type="text/javascript" src="js/functions.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#chartSelect > option").each(function() {
+	    if($(this).val() == '<%= request.getAttribute("selectedChart") %>'){
+	    	$(this).prop("selected",true);
+	    }; 
+	});
+	$("#relatedTo > option").each(function() {
+	    if($(this).val() == '<%= request.getAttribute("relatedto") %>'){
+	    	$(this).prop("selected",true);
+	    }; 
+	});
+	$("#metric > option").each(function() {
+	    if($(this).val() == '<%= request.getAttribute("metricName") %>'){
+	    	$(this).prop("selected",true);
+	    }; 
+	});
+});
+</script>
 </head>
 <body>
 	<%@include file='top.jsp' %>
 	<div class="container" id="content" style="margin-top: 80px;">
         <div class="row" id="top">
 			<div class="col-md-12" style="margin-top: 0px;">
-           		<div class="repository">LOCAL_REPOSITORY_PATH = '<%= request.getAttribute("LOCAL_REPOSITORY_PATH") %>'</div>
-				<hr/>
-				<section id="metrics" class="col-md-2">
+           		<section id="metrics" class="col-md-2">
 					<div class="inputs">
+						<h4>Related to:</h4>
+						<select id="relatedTo" name="relatedto" onchange="change()">
+							<option value="file">File</option>
+							<option value="tag">Tag</option>
+						</select>
 						<h4>Graphics:</h4>
-						<select id="chartSelect" name="graphic">
+						<select id="chartSelect" name="graphic" onchange="change();">
 							<option value="bubbleChart">Bubble Chart</option>
 							<option value="histogramChart">Histogram Chart</option>
 						</select>
@@ -46,17 +67,11 @@ writer.println(charts);
 						<div>
 							<h4>List of implemented metrics:</h4>
 						</div>
-						<ol class="listMetrics">
-						<c:forEach items="${metrics}" var="metric">
-					        <li><a href="index.do?m=${metric.name}" >${metric.name} - ${metric.description}</a></li>
-					    </c:forEach>
-						</ol>
-						<div class="examples">
-							<h4>Examples:</h4>
-							<a href='treemap.do' class="btn btn-default" target="_blank">
-								<span class="glyphicon glyphicon-plus-sign"></span> TreeMap Example
-							</a>
-						</div>
+						<select id="metric" name="metric" onchange="change();">
+							<c:forEach items="${metrics}" var="metric">
+					        	<option value="${metric.name}">${metric.name} - ${metric.description}</option>
+					    	</c:forEach>
+						</select>
 					</div>
 				</section>
 				<section id="chart" class="col-md-10"></section>

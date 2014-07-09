@@ -41,12 +41,11 @@ public class ConfigServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//values passed in the form
-		String rrlogin = (String)request.getParameter("remote_repository_login"), rrpass = (String)request.getParameter("remote_repository_password");
+		String rrgit = (String)request.getParameter("remote_repository_git"), rrlogin = (String)request.getParameter("remote_repository_login"), rrpass = (String)request.getParameter("remote_repository_password");
 		String lrp = (String)request.getParameter("local_repository_path"), lrn = (String)request.getParameter("local_repository_name"), lro = (String)request.getParameter("local_repository_owner");
-		boolean nr = Boolean.parseBoolean(request.getParameter("new_repository"));
 		String user = (String)request.getParameter("jdbc_user"), pass = (String)request.getParameter("jdbc_password");
 		//instancing the Configuration class
-		Configuration cfg = rrlogin.isEmpty() ? new Configuration(lrp,lrn,lro,nr,user,pass) : new Configuration(rrlogin,rrpass,lrp,lrn,lro,nr,user,pass);
+		Configuration cfg = new Configuration(rrgit, rrlogin,rrpass,lrp,lrn,lro,user,pass);
 		try {
 			//Creating XML File
 			cfg.writeXmlFile();

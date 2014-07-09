@@ -19,6 +19,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Configuration {
+	private String remoteRepositoryGit;
 	private String remoteRepositoryLogin;
 	private String remoteRepositoryPassword;
 	private String localRepositoryPath;
@@ -35,27 +36,7 @@ public class Configuration {
 	public Configuration(File xmlFile) throws ParserConfigurationException, SAXException, IOException{
 		this.readXmlFileToObject(xmlFile);
 	}
-	
-	/**
-	 * 
-	 * @param localRepositoryPath
-	 * @param localRepositoryName
-	 * @param localRepositoryOwner
-	 * @param createTableFlag
-	 * @param jdbc_user
-	 * @param jdbc_password
-	 */
-	public Configuration(String localRepositoryPath,
-			String localRepositoryName, String localRepositoryOwner,
-			boolean createTableFlag, String jdbc_user, String jdbc_password) {
-		this.localRepositoryPath = localRepositoryPath;
-		this.localRepositoryName = localRepositoryName;
-		this.localRepositoryOwner = localRepositoryOwner;
-		this.createTableFlag = createTableFlag;
-		this.jdbc_user = jdbc_user;
-		this.jdbc_password = jdbc_password;
-	}
-	
+
 	/**
 	 * 
 	 * @param localRepositoryPath
@@ -67,16 +48,17 @@ public class Configuration {
 	 * @param remoteRepositoryLogin
 	 * @param remoteRepositoryPassword
 	 */	
-	public Configuration(String remoteRepositoryLogin,
+	public Configuration(String remoteRepositoryGit, String remoteRepositoryLogin,
 			String remoteRepositoryPassword, String localRepositoryPath,
 			String localRepositoryName, String localRepositoryOwner,
-			boolean createTableFlag, String jdbc_user, String jdbc_password) {
+			String jdbc_user, String jdbc_password) {
+		this.remoteRepositoryGit = remoteRepositoryGit;
 		this.remoteRepositoryLogin = remoteRepositoryLogin;
 		this.remoteRepositoryPassword = remoteRepositoryPassword;
 		this.localRepositoryPath = localRepositoryPath;
 		this.localRepositoryName = localRepositoryName;
 		this.localRepositoryOwner = localRepositoryOwner;
-		this.createTableFlag = createTableFlag;
+		this.createTableFlag = true;
 		this.jdbc_user = jdbc_user;
 		this.jdbc_password = jdbc_password;
 	}
@@ -101,6 +83,11 @@ public class Configuration {
 		Element remoteRepository = doc.createElement("remoteRepository");
 		rootElement.appendChild(remoteRepository);
 		
+		//remoteRepositoryLogin element;
+		Element eRRG = doc.createElement("git");
+		eRRG.appendChild(doc.createTextNode(this.remoteRepositoryGit));
+		remoteRepository.appendChild(eRRG);
+
 		//remoteRepositoryLogin element;
 		Element eRRL = doc.createElement("login");
 		eRRL.appendChild(doc.createTextNode(this.remoteRepositoryLogin));
@@ -207,6 +194,7 @@ public class Configuration {
 			Node nNode = nList.item(temp);
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) nNode;
+				this.remoteRepositoryLogin = eElement.getElementsByTagName("git").item(0).getTextContent();
 				this.remoteRepositoryLogin = eElement.getElementsByTagName("login").item(0).getTextContent();
 				this.remoteRepositoryPassword = eElement.getElementsByTagName("password").item(0).getTextContent();
 			}
@@ -244,6 +232,8 @@ public class Configuration {
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) nNode;
 				str +=ln
+					+ tab + tab + "Url git        : " + eElement.getElementsByTagName("git").item(0).getTextContent()
+					+ ln
 					+ tab + tab + "login          : " + eElement.getElementsByTagName("login").item(0).getTextContent()
 					+ ln
 					+ tab + tab + "password       : " + eElement.getElementsByTagName("password").item(0).getTextContent()
@@ -287,6 +277,14 @@ public class Configuration {
 	
 	public String getLocalRepositoryPath() {
 		return localRepositoryPath;
+	}
+
+	public String getRemoteRepositoryGit() {
+		return remoteRepositoryGit;
+	}
+
+	public void setRemoteRepositoryGit(String remoteRepositoryGit) {
+		this.remoteRepositoryGit = remoteRepositoryGit;
 	}
 
 	public String getRemoteRepositoryLogin() {
@@ -349,4 +347,16 @@ public class Configuration {
 		this.jdbc_password = jdbc_password;
 	}
 
+	@Override
+	public String toString() {
+		return "Configuration [remoteRepositoryGit=" + remoteRepositoryGit
+				+ ", remoteRepositoryLogin=" + remoteRepositoryLogin
+				+ ", remoteRepositoryPassword=" + remoteRepositoryPassword
+				+ ", localRepositoryPath=" + localRepositoryPath
+				+ ", localRepositoryName=" + localRepositoryName
+				+ ", localRepositoryOwner=" + localRepositoryOwner
+				+ ", createTableFlag=" + createTableFlag + ", jdbc_user="
+				+ jdbc_user + ", jdbc_password=" + jdbc_password + "]";
+	}
+	
 }

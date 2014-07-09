@@ -13,13 +13,13 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.visminer.main.VisMiner;
 import org.viz.main.Viz;
 import org.viz.model.Configuration;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @WebFilter("*.do")
@@ -52,20 +52,29 @@ public class Main implements Filter {
 		}else{
 			try{
 				Configuration cfg = new Configuration(XmlFile);
-				Viz viz = (Viz)session.getAttribute("viz");		
-				if(viz==null){
-					/*
-					 * check if is passed the parameter createTable by URL
-					 * IF is null THEN the user to want visualization information of new repository
-					 * ELSE the user to want visualization information of old repository
-					 */
-					boolean createTable = (request.getParameter("createTable") != null); //NOT IMPLEMENTED
-					session.setAttribute("viz",new Viz(cfg));
+				VisMiner vm = (VisMiner)session.getAttribute("visminer");		
+				if(vm==null){
+					Viz viz = new Viz(cfg);
+					vm = viz.getVisminer();
+					//If created the tables, set flag to false, 
+					//case the server is restarted, 
+					//it do not try to create the tables again.
+					if(cfg.isCreateTableFlag()){
+						cfg.setCreateTableFlag(false);
+						cfg.writeXmlFile();
+					}
+					session.setAttribute("visminer",vm);
 				}			
 				chain.doFilter(request, response);
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
