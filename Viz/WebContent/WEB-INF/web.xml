@@ -43,12 +43,20 @@
 		<url-pattern>/chart.json</url-pattern>
 	</servlet-mapping>
 	<servlet>
-		<servlet-name>TreeMap</servlet-name>
-		<servlet-class>org.viz.servlet.TreeMapServlet</servlet-class>
+		<servlet-name>labelIssuesStatus</servlet-name>
+		<servlet-class>org.viz.servlet.IssuesOpenedClosedByLabelController</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>TreeMap</servlet-name>
-		<url-pattern>/treemap.do</url-pattern>
+		<servlet-name>labelIssuesStatus</servlet-name>
+		<url-pattern>/issuesStatus.do</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>labelIssueQuantity</servlet-name>
+		<servlet-class>org.viz.servlet.LabelIssueQuantityController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>labelIssueQuantity</servlet-name>
+		<url-pattern>/issuesQuantity.do</url-pattern>
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>welcome</servlet-name>

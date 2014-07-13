@@ -1,8 +1,8 @@
 <%@page import="org.viz.servlet.IndexServlet"%>
 <%@page import="org.viz.main.Viz"%>
 <%@page import="org.viz.javascript.ExportToJavascript"%>
-<%@page import="java.util.Collections"%>
 <%@page import="org.visminer.model.MetricValue"%>
+<%@page import="java.util.Collections"%>
 <%@page import="java.io.PrintWriter"%>
 <%@page import="java.util.List"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -10,7 +10,7 @@
 <%
 ExportToJavascript js = new ExportToJavascript();
 PrintWriter writer = response.getWriter(); 
-writer.println("<script type='text/javascript' src='js/jquery-1.11.0.min.js'></script>"); 
+writer.println("<script type='text/javascript' src='js/jquery-2.1.1.min.js'></script>"); 
 String charts = js.exportAllCharts((String)request.getAttribute("metricName").toString(),(String)request.getAttribute("metricDescription"),(String)request.getAttribute("values"),(String)request.getAttribute("greater"),(String)request.getAttribute("selectedChart"));
 writer.println(charts);
 %>
@@ -19,12 +19,8 @@ writer.println(charts);
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Visualization</title>
-<link rel="stylesheet" href="css/bootstrap.css">
-<link rel="stylesheet" href="css/histogram.css">
-<link rel="stylesheet" href="css/custom.css">
-<script type='text/javascript' src='js/d3.v3.min.js'></script>
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/functions.js"></script>
+<%@include file='stylesheet.jsp' %>
+<%@include file='script.jsp' %>
 <script type="text/javascript">
 $(document).ready(function(){
 	$("#chartSelect > option").each(function() {
@@ -50,7 +46,7 @@ $(document).ready(function(){
 	<div class="container" id="content" style="margin-top: 80px;">
         <div class="row" id="top">
 			<div class="col-md-12" style="margin-top: 0px;">
-           		<section id="metrics" class="col-md-2">
+           		<section id="metrics" class="col-md-3">
 					<div class="inputs">
 						<h4>Related to:</h4>
 						<select id="relatedTo" name="relatedto" onchange="change()">
@@ -74,7 +70,7 @@ $(document).ready(function(){
 						</select>
 					</div>
 				</section>
-				<section id="chart" class="col-md-10"></section>
+				<section id="chart" class="col-md-9"></section>
            </div>
     	</div>
     </div>
